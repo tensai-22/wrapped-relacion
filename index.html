@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Wrapped de Nuestra Relación</title>
+  <style>
+    /****************************************************
+     RESET Y ESTILOS BÁSICOS
+    ****************************************************/
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #e0f2f1;
+      color: #333;
+      overflow-x: hidden;
+    }
+
+    /****************************************************
+     FONDO CON ELEMENTOS CAYENDO
+    ****************************************************/
+    .falling-hearts-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 1;
+    }
+    .falling-symbol {
+      position: absolute;
+      font-size: 24px;
+      opacity: 0.9;
+      animation-name: fallSymbol;
+      animation-timing-function: linear;
+    }
+
+    @keyframes fallSymbol {
+      0% {
+        transform: translateY(-100px) rotate(0deg) scale(1);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.9;
+      }
+      100% {
+        transform: translateY(120vh) rotate(360deg) scale(1);
+        opacity: 0;
+      }
+    }
+
+    /****************************************************
+     ENCABEZADO
+    ****************************************************/
+    header {
+      background-color: #004d40;
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+      z-index: 2;
+      position: relative;
+    }
+    header h1 {
+      font-size: 28px;
+      letter-spacing: 1.2px;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+    header p {
+      font-size: 15px;
+    }
+
+    /****************************************************
+     BARRA DE PESTAÑAS FIJA
+    ****************************************************/
+    .tab-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 50px;
+      background-color: #00796b;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      z-index: 999;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    .tab-menu {
+      list-style-type: none;
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      width: 100%;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .tab-menu::-webkit-scrollbar {
+      display: none;
+    }
+    .tab-menu li {
+      cursor: pointer;
+      color: #fff;
+      margin-right: 5px;
+      padding: 10px 15px;
+      border-radius: 4px;
+      white-space: nowrap;
+      transition: background-color 0.3s;
+      font-size: 14px;
+      position: relative;
+    }
+    .tab-menu li:hover {
+      background-color: #006053;
+    }
+    .tab-menu .active-button {
+      background-color: #ffffff;
+      color: #00796b;
+    }
+
+    /* Corazón saltarín */
+    .jumping-heart {
+      position: absolute;
+      font-size: 20px;
+      color: #f44336;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+      animation: jump 0.8s ease forwards;
+    }
+    @keyframes jump {
+      0% {
+        transform: translateX(-50%) translateY(0);
+        opacity: 0;
+      }
+      20% {
+        opacity: 1;
+      }
+      50% {
+        transform: translateX(-50%) translateY(-20px) scale(1.2);
+      }
+      100% {
+        transform: translateX(-50%) translateY(-50px) scale(0.8);
+        opacity: 0;
+      }
+    }
+
+    /****************************************************
+     CONTENEDOR PRINCIPAL
+    ****************************************************/
+    .wrapper {
+      width: 90%;
+      max-width: 1200px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.15);
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 100px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /****************************************************
+     ESTILOS DE TEXTO Y TÍTULOS
+    ****************************************************/
+    .section-title {
+      color: #00796b;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .highlight {
+      font-weight: 600;
+      color: #004d40;
+    }
+    .desc-big {
+      font-size: 1.15rem;
+      margin-bottom: 1em;
+      line-height: 1.6;
+      color: #222;
+    }
+    .quotes-list {
+      list-style: none;
+      margin-left: 20px;
+      margin-top: 0.5em;
+    }
+    .quotes-list li {
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      position: relative;
+    }
+
+    /****************************************************
+     BOTÓN CORAZÓN (LIKE)
+    ****************************************************/
+    .heart-btn {
+      cursor: pointer;
+      font-size: 1rem;
+      color: #aaa;
+      margin-right: 8px;
+      transition: color 0.3s ease;
+    }
+    .heart-btn.liked {
+      color: #e53935;
+    }
+
+    /****************************************************
+     PESTAÑAS - CONTENIDO
+    ****************************************************/
+    .tab-content {
+      display: none;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      margin-bottom: 20px;
+    }
+    .active-tab {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /****************************************************
+     DISTRIBUCIÓN DEL MES (IMAGEN + TEXTO)
+    ****************************************************/
+    .month-section {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+    .month-image {
+      flex: 1 1 300px;
+      max-width: 400px;
+      height: auto;
+      border: 3px solid #ccc;
+      border-radius: 6px;
+      display: block;
+    }
+    .month-text {
+      flex: 1 1 300px;
+      min-width: 250px;
+    }
+    .month-text h3 {
+      margin-bottom: 10px;
+      color: #00796b;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    .month-text p {
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+
+    /****************************************************
+     FRASES DESPLEGABLES
+    ****************************************************/
+    .reveal-button {
+      background-color: #00796b;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+      transition: background-color 0.3s ease;
+    }
+    .reveal-button:hover {
+      background-color: #006053;
+    }
+    .hidden-phrase {
+      display: none;
+      margin-left: 25px;
+      margin-top: 5px;
+      color: #444;
+    }
+    .show-phrase {
+      display: block;
+    }
+    .quote-date {
+      display: block;
+      font-size: 0.85rem;
+      color: #555;
+      margin-top: 3px;
+    }
+    .quote-author {
+      color: #00897b;
+      font-weight: 600;
+    }
+
+    /****************************************************
+     RESPONSIVE
+    ****************************************************/
+    @media (max-width: 768px) {
+      .tab-bar {
+        height: auto;
+        flex-wrap: wrap;
+        padding: 10px;
+      }
+      .tab-menu {
+        overflow-y: hidden;
+      }
+      .month-section {
+        flex-direction: column;
+      }
+      .month-image {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Contenedor para símbolos cayendo -->
+  <div class="falling-hearts-container" id="fallingHeartsContainer"></div>
+
+  <!-- ENCABEZADO -->
+  <header>
+    <h1>Wrapped de Nuestra Relación</h1>
+    <p>Iniciada el 02-06-2024</p>
+  </header>
+
+  <!-- BARRA DE PESTAÑAS FIJA -->
+  <div class="tab-bar">
+    <ul class="tab-menu" id="tabMenu">
+      <li class="active-button" onclick="openTab(event, 'intro')">Intro</li>
+      <li onclick="openTab(event, 'junio')">Junio</li>
+      <li onclick="openTab(event, 'julio')">Julio</li>
+      <li onclick="openTab(event, 'agosto')">Agosto</li>
+      <li onclick="openTab(event, 'septiembre')">Septiembre</li>
+      <li onclick="openTab(event, 'octubre')">Octubre</li>
+      <li onclick="openTab(event, 'noviembre')">Noviembre</li>
+      <li onclick="openTab(event, 'diciembre')">Diciembre</li>
+    </ul>
+  </div>
+
+  <!-- CONTENEDOR PRINCIPAL -->
+  <div class="wrapper">
+    <!-- PESTAÑA INTRO -->
+    <div id="intro" class="tab-content active-tab">
+      <div style="margin-bottom: 20px; font-size: 1.05rem; line-height: 1.5;">
+        <p>
+          <strong>Hola mi duendeyan</strong>, realicé este recopilatorio de 
+          nuestros mensajes por WhatsApp para conservar la relevancia de estos 
+          meses, <strong>mi bebé cabezón</strong>.
+        </p>
+      </div>
+
+      <!-- Estadísticas Generales -->
+      <div class="stats-section">
+        <h2 class="section-title">Estadísticas Generales</h2>
+        <p><strong>Mensajes por persona:</strong></p>
+        <ul class="stats-list">
+          <li>Manuel (m): 49,963</li>
+          <li>Dayann (Ojiñawicha): 36,616</li>
+        </ul>
+        <p><strong>Total de caracteres por persona:</strong></p>
+        <ul class="stats-list">
+          <li>Manuel: 1,914,685</li>
+          <li>Dayann: 1,661,182</li>
+        </ul>
+        <p><strong>Día con más mensajes (junio a diciembre):</strong></p>
+        <ul class="stats-list">
+          <li>17-06-2024 (<span class="highlight">2,078</span> mensajes)</li>
+        </ul>
+      </div>
+
+      <div class="stats-section">
+        <h2 class="section-title">Frases Románticas</h2>
+        <p><strong>Mensajes románticos por persona:</strong></p>
+        <ul class="stats-list">
+          <li>Manuel: 4,363</li>
+          <li>Dayann: 1,928</li>
+        </ul>
+        <p><strong>Total de caracteres románticos por persona:</strong></p>
+        <ul class="stats-list">
+          <li>Manuel: 176,283</li>
+          <li>Dayann: 86,406</li>
+        </ul>
+        <p><strong>Total de frases románticas:</strong> 8,597</p>
+      </div>
+    </div>
+
+    <!-- PESTAÑA JUNIO -->
+    <div id="junio" class="tab-content">
+      <h2 class="section-title">Junio 2024</h2>
+      <div class="month-section">
+        <img
+          src="./images/Photos-001/junio.jpg"
+          alt="Foto de Junio"
+          class="month-image"
+        />
+        <div class="month-text">
+          <h3>Este día acumuló el mayor flujo de mensajes</h3>
+          <p>17-06-2024 (<span class="highlight">2,078</span> mensajes)</p>
+          <p class="desc-big">
+            Observamos que la confianza creció de modo espontáneo.
+          </p>
+        </div>
+      </div>
+      <ul class="quotes-list">
+        <!-- Frases existentes -->
+        <li>
+          <span class="heart-btn" onclick="toggleLike(this)">♥</span>
+          "Sin tus bromas pesadas de que estoy gordo, mi vida sería un aburrimiento total."
+        </li>
+        <li>
+          <span class="heart-btn" onclick="toggleLike(this)">♥</span>
+          "Nuestra historia de amor es la mejor inversión: sube y nunca se desploma."
+        </li>
+      </ul>
+
+      <!-- Frases nuevas con botón "revelar" -->
+      <ul class="quotes-list">
+        <li>
+          <button class="reveal-button" onclick="togglePhrase('junio-manuel-1')">Ver frase de Manuel (06/06/2024)</button>
+          <div class="hidden-phrase" id="junio-manuel-1">
+            <span class="heart-btn" onclick="toggleLike(this)">♥</span>
+            "Soy Manuel, soy el novio de su hija. Ella me pasó su número porque justo quería consultarle si ella y sus amigas pueden venir el día viernes a una actividad que hará la facultad de sociales PUCP por la celebración del fin de exámenes parciales."
+            <span class="quote-date">
+              <span class="quote-author">Manuel</span> | 06/06/2024
+            </span>
+          </div>
+        </li>
+        <li>
+          <button class="reveal-button" onclick="togglePhrase('junio-dayan-1')">Ver frase de Dayan (13/06/2024)</button>
+          <div class="hidden-phrase" id="junio-dayan-1">
+            <span class="heart-btn" onclick="toggleLike(this)">♥</span>
+            "Cásate con mi nombre, pues."
+            <span class="quote-date">
+              <span class="quote-author">Dayan (Ojiñawicha)</span> | 13/06/2024
+            </span>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- PESTAÑA JULIO -->
+    <div id="julio" class="tab-content">
+      <h2 class="section-title">Julio 2024</h2>
+      <div class="month-section">
+        <img
+          src="./images/Photos-001/julio.jpeg"
+          alt="Foto de Julio"
+          class="month-image"
+        />
+        <div class="month-text">
+          <h3>Este día sumó un intercambio moderado</h3>
+          <p>18-07-2024 (<span class="highlight">1,149</span> mensajes)</p>
+          <p class="desc-big">
+            Fue un mes en el que aprendimos a ser más empáticos.
+          </p>
+        </div>
+      </div>
+      <ul class="quotes-list">
+        <!-- Frases existentes -->
+        <li>
+          <span class="heart-btn" onclick="toggleLike(this)">♥</span>
+          "Eres mi orangután potón y gordito"
+        </li>
+        <li>
+          <span class="heart-btn" onclick="toggleLike(this)">♥</span>
+          "Nuestros abrazos se cotizan al alza, y no hay crisis que los detenga."
+        </li>
+      </ul>
+
+      <!-- Frases nuevas con botón "revelar" -->
+      <ul class="quotes-list">
+        <li>
+          <button class="reveal-button" onclick="togglePhrase('julio-manuel-1')">Ver frase de Manuel (22/07/2024)</button>
+          <div class="hidden-phrase" id="julio-manuel-1">
+            <span class="heart-btn" onclick="toggleLike(this)">♥</span>
+            "Espero que todas tus metas se cumplan y estar ahí para verlas. Está de más decir que estoy muy orgulloso de ti."
+            <span class="quote-date">
+              <span class="quote-author">Manuel</span> | 22/07/2024
+            </span>
+          </div>
+        </li>
+        <li>
+          <button class="reveal-button" onclick="togglePhrase('julio-dayan-1')">Ver frase de Dayan (11/07/2024)</button>
+          <div class="hidden-phrase" id="julio-dayan-1">
+            <span class="heart-btn" onclick="toggleLike(this)">♥</span>
+            "Me encanta aprender de ti. Solo hablo de ti con mis amistades; ya ni salgo con ellos porque prefiero verte a ti."
+            <span class="quote-date">
+              <span class="quote-author">Dayan (Ojiñawicha)</span> | 11/07/2024
+            </span>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- PESTAÑA AGOSTO -->
+    <div id="agosto" class="tab-content">
+      <h2 class="section-title">Agosto 2024</h2>
+      <div class="month-section">
+        <img
+          src="./images/Photos-001/agosto.jpeg"
+          alt="Foto de Agosto"
+          class="month-image"
+        />
+        <div class="month-text">
+          <h3>Este día alcanzó un intercambio considerable</h3>
+          <p>28-08-2024 (<span class="highlight">1,209</span> mensajes)</p>
+          <p class="desc-big">
+            Aprendimos a cuidar y a cuidarnos con mayor responsabilidad.
+          </p>
+        </div>
+      </div>
+      <ul class="quotes-list">
+        <!-- Frases existentes -->
+        <li>
+          <span class="heart-btn" onclick="toggleLike(this)">♥</span>
+          "Lo que hacemos por amor supera cualquier límite: reniegos, problemas, TODO."
+        </li>
+        <li>
+          <span class="heart-btn" onclick="toggleLike(this)">♥</span>
+          "Nuestra relación fusiona dos almas traviesas que no conocen la palabra competencia (mentira, siempre me quieres ganar)."
+        </li>
+      </ul>
+
+      <!-- Frases nuevas con botón "revelar" -->
+      <ul class="quotes-list">
+        <li>
+          <button class="reveal-button" onclick="togglePhrase('agosto-manuel-1')">Ver frase de Manuel (16/08/2024)</button>
+          <div class="hidden-phrase" id="agosto-manuel-1">
+            <span class="heart-btn" onclick="toggleLike(this)">♥</span>
+            "Respecto a lo de la hora del trabajo a tu casa, yo puedo llevarte todos los días a tu casa. No aceptaré un no como respuesta."
+            <span class="quote-date">
+              <span class="quote-author">Manuel</span> | 16/08/2024
+            </span>
+          </div>
+        </li>
+        <li>
+          <button class="reveal-button" onclick="togglePhrase('agosto-dayan-1')">Ver frase de Dayan (11/07/2024)</button>
+          <div class="hidden-phrase" id="agosto-dayan-1">
+            <span class="heart-btn" onclick="toggleLike(this)">♥</span>
+            "Eres como una base de seguridad, Manuel. Si te vas, siento que todo se derrumba."
+            <span class="quote-date">
+              <span class="quote-author">Dayan (Ojiñawicha)</span> | 11/08/2024
+            </span>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- PESTAÑA SEPTIEMBRE -->
+    <div id="septiembre" class="tab-content">
+      <h2 class="section-title">Septiembre 2024</h2>
+      <div class="month-section">
+        <img
+          src="./images/Photos-001/septiembre.jpeg"
+          alt="Foto de Septiembre"
+          class="month-image"
+        />
+        <div class="month-text">
+          <h3>Este día alcanzó una cifra moderada de mensajes</h3>
+          <p>10-09-2024 (<span class="highlight">875</span> mensajes)</p>
+          <p class="desc-big">
+            Compartimos más momentos y exploramos nuevas perspectivas.
+          </p>
+        </div>
+      </div>
+      <ul class="quotes-list">
+        <!-- Frases existentes -->
+        <li>
+          <span class="heart-btn" onclick="toggleLike(this)">♥</span>
+          "Tu amor sabe mejor que cualquier nevado de Juan Valdez que hemos tomado."
+        </li>
+        <li>
+          <span class="heart-btn" onclick="toggleLike(this)">♥</span>
+          "Nuestros besos no necesitan trámites: circulan libres de aduana en cualquier parte."
+        </li>
+      </ul>
+
+      <!-- Frases nuevas con botón "revelar" -->
+      <ul class="quotes-list">
+        <li>
+          <button class="reveal-button" onclick="togglePhrase('septiembre-manuel-1')">Ver frase de Manuel (06/09/2024)</button>
+          <div class="hidden-phrase" id="septiembre-manuel-1">
+            <span class="heart-btn" onclick="toggleLike(this)">♥</span>
+            "Te amo tanto, me siento afortunado de poder estar contigo y compartir todos estos momentos únicos."
+            <span class="quote-date">
+              <span class="quote-author">Manuel</span> | 06/09/2024
+            </span>
+          </div>
+        </li>
+        <li>
+          <button class="reveal-button" onclick="togglePhrase('septiembre-dayan-1')">Ver frase de Dayan (03/09/2024)</button>
+          <div class="hidden-phrase" id="septiembre-dayan-1">
+            <span class="heart-btn" onclick="toggleLike(this)">♥</span>
+            "Alguna vez te mencioné que te amo."
+            <span class="quote-date">
+              <span class="quote-author">Dayan (Ojiñawicha)</span> | 03/09/2024
+            </span>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- PESTAÑA OCTUBRE -->
+    <div id="octubre" class="tab-content">
+      <h2 class="section-title">Octubre 2024</h2>
+      <div class="month-section">
+        <img
+          src="./images/Photos-001/octubre.jpeg"
+          alt="Foto de Octubre"
+          class="month-image"
+        />
+        <div class="month-text">
+          <h3>Este día registró actividad mesurada</h3>
+          <p>28-10-2024 (<span class="highlight">716</span> mensajes)</p>
+          <p class="desc-big">
+            Recorremos nuevos lugares y adquirimos retos compartidos.
+          </p>
+        </div>
+      </div>
+      <ul class="quotes-list">
+        <!-- Frases existentes -->
+        <li>
+          <span class="heart-btn" onclick="toggleLike(this)">♥</span>
+          "Nuestra complicidad se mide en carcajadas, sobre todo cuando casi nos volamos con el viento en ese desierto feo en Nazca."
+        </li>
+        <li>
+          <span class="heart-btn" onclick="toggleLike(this)">♥</span>
+          "Exportamos amor sin aranceles: nuestros 'te amo' no enfrentan barreras proteccionistas."
+        </li>
+      </ul>
+
+      <!-- Frases nuevas con botón "revelar" -->
+      <ul class="quotes-list">
+        <li>
+          <button class="reveal-button" onclick="togglePhrase('octubre-manuel-1')">Ver frase de Manuel (16/10/2024)</button>
+          <div class="hidden-phrase" id="octubre-manuel-1">
+            <span class="heart-btn" onclick="toggleLike(this)">♥</span>
+            "Lo que te haga más feliz me hará el más feliz a mí."
+            <span class="quote-date">
+              <span class="quote-author">Manuel</span> | 16/10/2024
+            </span>
+          </div>
+        </li>
+        <li>
+          <button class="reveal-button" onclick="togglePhrase('octubre-dayan-1')">Ver frase de Dayan (04/10/2024)</button>
+          <div class="hidden-phrase" id="octubre-dayan-1">
+            <span class="heart-btn" onclick="toggleLike(this)">♥</span>
+            "Nunca había llegado tan lejos... siendo fiel, claro."
+            <span class="quote-date">
+              <span class="quote-author">Dayan (Ojiñawicha)</span> | 04/10/2024
+            </span>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- PESTAÑA NOVIEMBRE -->
+    <div id="noviembre" class="tab-content">
+      <h2 class="section-title">Noviembre 2024</h2>
+      <div class="month-section">
+        <img
+          src="./images/Photos-001/noviembre.jpeg"
+          alt="Foto de Noviembre"
+          class="month-image"
+        />
+        <div class="month-text">
+          <h3>Este día generó una interacción estable</h3>
+          <p>20-11-2024 (<span class="highlight">927</span> mensajes)</p>
+          <p class="desc-big">
+            Compartimos tiempo en casa y disfrutamos de bebidas diversas.
+          </p>
+        </div>
+      </div>
+      <ul class="quotes-list">
+        <!-- Frases existentes -->
+        <li>
+          <span class="heart-btn" onclick="toggleLike(this)">♥</span>
+          "Somos niños cuando jugamos juntos, pero adultos responsables cuando se trata de amarnos. Aunque tú siempre me pegas."
+        </li>
+        <li>
+          <span class="heart-btn" onclick="toggleLike(this)">♥</span>
+          "Las tapiocas de nuestro té simbolizan cada idea loca que compartimos con felicidad."
+        </li>
+      </ul>
+
+      <!-- Frases nuevas con botón "revelar" -->
+      <ul class="quotes-list">
+        <li>
+          <button class="reveal-button" onclick="togglePhrase('noviembre-manuel-1')">Ver frase de Manuel (15/11/2024)</button>
+          <div class="hidden-phrase" id="noviembre-manuel-1">
+            <span class="heart-btn" onclick="toggleLike(this)">♥</span>
+            "Firme solo quiero hablar contigo como adulto, no quiero llorar más porque quiero ser mejor para ti."
+            <span class="quote-date">
+              <span class="quote-author">Manuel</span> | 15/11/2024
+            </span>
+          </div>
+        </li>
+        <li>
+          <button class="reveal-button" onclick="togglePhrase('noviembre-dayan-1')">Ver frase de Dayan (02/11/2024)</button>
+          <div class="hidden-phrase" id="noviembre-dayan-1">
+            <span class="heart-btn" onclick="toggleLike(this)">♥</span>
+            "Gracias por todo. Firme te adoro eres muy útil y eso mejor."
+            <span class="quote-date">
+              <span class="quote-author">Dayan (Ojiñawicha)</span> | 02/11/2024
+            </span>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- PESTAÑA DICIEMBRE -->
+    <div id="diciembre" class="tab-content">
+      <h2 class="section-title">Diciembre 2024</h2>
+      <div class="month-section">
+        <img
+          src="./images/Photos-001/diciembre.jpg"
+          alt="Foto de Diciembre"
+          class="month-image"
+        />
+        <div class="month-text">
+          <h3>Este día alcanzó conversaciones fluidas</h3>
+          <p>23-12-2024 (<span class="highlight">913</span> mensajes)</p>
+          <p class="desc-big">
+            Planeamos diversas actividades y reafirmamos la solidez de nuestras decisiones.
+          </p>
+        </div>
+      </div>
+      <ul class="quotes-list">
+        <!-- Frases existentes -->
+        <li>
+          <span class="heart-btn" onclick="toggleLike(this)">♥</span>
+          "Cuando te miro demasiado, olvido dónde empiezo y dónde termino. Mi cosita verdecita."
+        </li>
+        <li>
+          <span class="heart-btn" onclick="toggleLike(this)">♥</span>
+          "Nuestro amor crece como todas las empanadas de carne que te has tragado por mi casa: calentito y listo para cualquier ocasión."
+        </li>
+      </ul>
+
+      <!-- Frases nuevas con botón "revelar" -->
+      <ul class="quotes-list">
+        <li>
+          <button class="reveal-button" onclick="togglePhrase('diciembre-manuel-1')">Ver frase de Manuel (14/12/2024)</button>
+          <div class="hidden-phrase" id="diciembre-manuel-1">
+            <span class="heart-btn" onclick="toggleLike(this)">♥</span>
+            "Quiero que sepas que te amo, y que solo por ti hago todo lo que hago, para ser prósperos en el futuro."
+            <span class="quote-date">
+              <span class="quote-author">Manuel</span> | 14/12/2024
+            </span>
+          </div>
+        </li>
+        <li>
+          <button class="reveal-button" onclick="togglePhrase('diciembre-dayan-1')">Ver frase de Dayan (22/12/2024)</button>
+          <div class="hidden-phrase" id="diciembre-dayan-1">
+            <span class="heart-btn" onclick="toggleLike(this)">♥</span>
+            "Gracias por existir."
+            <span class="quote-date">
+              <span class="quote-author">Dayan (Ojiñawicha)</span> | 22/12/2024
+            </span>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- SCRIPT PRINCIPAL -->
+  <script>
+    /****************************************************
+     CAMBIO DE PESTAÑAS (CON CORAZÓN SALTARÍN)
+    ****************************************************/
+    function openTab(event, tabId) {
+      const allTabs = document.querySelectorAll('.tab-content');
+      allTabs.forEach(tab => {
+        tab.classList.remove('active-tab');
+      });
+
+      const allMenuItems = document.querySelectorAll('.tab-menu li');
+      allMenuItems.forEach(item => {
+        item.classList.remove('active-button');
+      });
+
+      document.getElementById(tabId).classList.add('active-tab');
+      event.currentTarget.classList.add('active-button');
+
+      const jumpingHeart = document.createElement('span');
+      jumpingHeart.innerHTML = '♥';
+      jumpingHeart.classList.add('jumping-heart');
+      event.currentTarget.appendChild(jumpingHeart);
+
+      setTimeout(() => {
+        if (jumpingHeart && jumpingHeart.parentNode) {
+          jumpingHeart.parentNode.removeChild(jumpingHeart);
+        }
+      }, 800);
+    }
+
+    /****************************************************
+     FUNCIÓN DE "LIKE" AL PRESIONAR EL CORAZÓN
+    ****************************************************/
+    function toggleLike(element) {
+      element.classList.toggle('liked');
+    }
+
+    /****************************************************
+     FUNCIÓN PARA REVELAR / OCULTAR FRASES
+    ****************************************************/
+    function togglePhrase(id) {
+      const phraseElement = document.getElementById(id);
+      phraseElement.classList.toggle('show-phrase');
+    }
+
+    /****************************************************
+     SÍMBOLOS CAYENDO
+    ****************************************************/
+    const fallingHeartsContainer = document.getElementById('fallingHeartsContainer');
+    const symbols = [
+      '♥','❤','❤️','💕','💖',
+      '🧋','🧋',
+      '🥟','🥟','🥟',
+      '🌸','🌺','🌸'
+    ];
+
+    function createFallingSymbol() {
+      const symbol = document.createElement('div');
+      symbol.classList.add('falling-symbol');
+
+      const randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
+      symbol.innerText = randomSymbol;
+
+      symbol.style.left = Math.random() * 100 + '%';
+      const scale = (Math.random() * 0.8 + 0.4).toFixed(2);
+      symbol.style.transform = `scale(${scale})`;
+
+      const randomDuration = (Math.random() * 6 + 4).toFixed(2);
+      symbol.style.animationDuration = randomDuration + 's';
+
+      fallingHeartsContainer.appendChild(symbol);
+
+      setTimeout(() => {
+        if (symbol && symbol.parentNode) {
+          symbol.parentNode.removeChild(symbol);
+        }
+      }, randomDuration * 1000);
+    }
+
+    function createMultipleSymbols() {
+      for (let i = 0; i < 5; i++) {
+        createFallingSymbol();
+      }
+    }
+    setInterval(createMultipleSymbols, 600);
+  </script>
+</body>
+</html>

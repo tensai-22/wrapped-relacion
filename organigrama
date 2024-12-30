@@ -1,0 +1,33 @@
+// Organigrama
+digraph {
+	nodesep=1.0 rankdir=TB size="10,10" splines=ortho
+	1 [label="Gerente General
+Palacio Tezen, Thalia
+Dirección
+Objetivo: Dirigir y coordinar la estrategia empresarial"]
+	2 [label="Jefe de Producción
+Falcon Pizarro, Andrea
+Producción
+Objetivo: Supervisar y optimizar el proceso de producción"]
+	3 [label="Gerente de Ventas
+Cardenaz Campodonico, Mariel
+Comercial
+Objetivo: Dirigir las actividades de ventas"]
+	4 [label="Empleado de Atención al Cliente
+Lopez Bellido, Dayan
+Servicio al Cliente
+Objetivo: Brindar atención a clientes"]
+	5 [label="Gerente de Marketing
+Tello Saavedra, Kerry
+Marketing
+Objetivo: Desarrollar estrategias de marketing"]
+	6 [label="Operario de Producción
+Abregu Colonia, Carolina
+Producción
+Objetivo: Preparar y empacar productos"]
+	1 -> 2
+	1 -> 3
+	3 -> 4
+	1 -> 5
+	2 -> 6
+}
